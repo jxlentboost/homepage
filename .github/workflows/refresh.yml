@@ -1,0 +1,68 @@
+name: refresh
+
+# Rebuild the data and republish the site. Scheduled runs on the free tier are
+# best-effort and often land a few minutes late, which is fine here — the page
+# shows how old its data is.
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+# Needed to force-push the generated site to gh-pages.
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # The fetchers use only the standard library, so there is nothing to install.
+      # One dead upstream must not sink the whole run: each is allowed to fail and
+      # the page falls back to a "not loaded" message for that section alone.
+      - name: Fetch data
+        run: |
+          set +e
+          rc=0
+          for t in news f1 hn gdelt; do
+            echo "::group::fetch_$t"
+            python3 "tools/fetch_$t.py" || { echo "::warning::fetch_$t failed"; rc=1; }
+            echo "::endgroup::"
+          done
+          ls -la data/
+          exit 0
+
+      - name: Publish to gh-pages
+        run: |
+          set -e
+          site="$RUNNER_TEMP/site"
+          rm -rf "$site"
+          mkdir -p "$site"
+          cp index.html .nojekyll "$site/"
+          cp -R data "$site/data"
+
+          cd "$site"
+          git init -q
+          git checkout -q -b gh-pages
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "site: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          # Force-push a fresh single commit each time. The branch never
+          # accumulates history, so the repo stays flat instead of growing by
+          # the size of the image cache on every refresh.
+          git push -q --force \
+            "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" \
+            gh-pages
+          echo "published $(du -sh . | cut -f1) to gh-pages"
