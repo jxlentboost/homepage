@@ -59,7 +59,9 @@ BROWSER_UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1
               "(KHTML, like Gecko) Version/17.0 Safari/605.1.15")
 
 IMG_EXT = {"image/jpeg": ".jpg", "image/jpg": ".jpg", "image/png": ".png",
-           "image/webp": ".webp", "image/gif": ".gif", "image/avif": ".avif"}
+           "image/webp": ".webp", "image/gif": ".gif", "image/avif": ".avif",
+           "image/svg+xml": ".svg", "image/x-icon": ".ico",
+           "image/vnd.microsoft.icon": ".ico"}
 
 
 def read_conf():

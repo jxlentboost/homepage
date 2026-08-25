@@ -170,6 +170,12 @@
     transition: transform .13s ease, border-color .13s;
   }
   .tile:hover { transform: translateY(-2px); border-color: var(--border-strong); }
+  .mono.logo {
+    background: #fff;
+    border: 1px solid var(--border);
+    padding: 4px;
+  }
+  .mono.logo img { display: block; width: 100%; height: 100%; object-fit: contain; }
   .mono {
     width: 34px; height: 34px;
     border-radius: 10px;
@@ -979,6 +985,8 @@
 </dialog>
 
 <!-- Headlines, written to disk by ~/homepage/tools/fetch_news.py. No network call happens here. -->
+<!-- Shortcut logos, cached to disk by ~/homepage/tools/fetch_icons.py. -->
+<script src="data/icons.js"></script>
 <script src="data/news.js"></script>
 <!-- F1 season, written to disk by ~/homepage/tools/fetch_f1.py. -->
 <script src="data/f1.js"></script>
@@ -1058,7 +1066,15 @@
   });
 
   /* ---------- shortcuts ---------- */
-  const DEFAULTS = [
+  const ICONS = (window.HP_ICONS && window.HP_ICONS.icons) || {};
+  // Plain parse rather than new URL(): no exceptions to trap, and it keeps this
+  // testable outside a browser, where URL is not defined.
+  const hostOf = u => {
+    const m = /^[a-z][a-z0-9+.-]*:\/\/(?:[^@/]*@)?([^/:?#]+)/i.exec(String(u || ''));
+    return m ? m[1].replace(/^www\./i, '').toLowerCase() : '';
+  };
+
+  const DEFAULTS = (window.HP_ICONS && window.HP_ICONS.defaults) || [
     { name: 'Gmail',    url: 'https://mail.google.com' },
     { name: 'Calendar', url: 'https://calendar.google.com' },
     { name: 'Drive',    url: 'https://drive.google.com' },
@@ -1081,9 +1097,22 @@
       a.className = 'tile';
       a.href = l.url;
       const h = hue(l.name || l.url);
-      a.innerHTML = `<div class="mono" style="background:hsl(${h} 52% 45%)">${initials(l.name || '?')}</div>
+      const icon = ICONS[hostOf(l.url)];
+      const badge = icon
+        ? `<div class="mono logo"><img src="${icon}" alt=""></div>`
+        : `<div class="mono" style="background:hsl(${h} 52% 45%)">${initials(l.name || '?')}</div>`;
+      a.innerHTML = `${badge}
                      <span class="label"></span>
                      <button class="del" title="Remove">×</button>`;
+      // A shortcut added in the browser has no cached logo, and a stale manifest
+      // can outlive its file — either way, fall back to the coloured initial.
+      const img = a.querySelector('.mono img');
+      if (img) img.onerror = () => {
+        const box = img.parentElement;
+        box.classList.remove('logo');
+        box.style.background = `hsl(${h} 52% 45%)`;
+        box.textContent = initials(l.name || '?');
+      };
       a.querySelector('.label').textContent = l.name;
       a.querySelector('.del').onclick = e => {
         e.preventDefault(); e.stopPropagation();
