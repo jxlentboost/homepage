@@ -48,7 +48,9 @@ IMG_HREF = "data/img"
 NEWS_BUCKET = "news"
 
 PER_FEED = 6          # most recent items taken from each feed
-PER_CATEGORY = 12     # headlines kept per category after merging
+PER_CATEGORY = 16     # headlines kept per category after merging
+                      # (raised from 12: with 8 feeds in World, 12 slots left
+                      #  most sources showing a single headline)
 TIMEOUT = 15
 SCRAPE_TIMEOUT = 12   # per article page, when hunting for an og:image
 IMG_TIMEOUT = 25
