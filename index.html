@@ -763,7 +763,10 @@
     { name: 'YouTube',  url: 'https://youtube.com' },
     { name: 'Maps',     url: 'https://maps.google.com' },
   ];
-  let links = store.get('hp.links', DEFAULTS);
+  // shortcuts.conf drives the tiles until you add or remove one in the browser.
+  // Without this flag a saved copy of the old defaults would shadow the config
+  // forever, and edits to shortcuts.conf would silently never show up.
+  let links = store.get('hp.linksCustom', false) ? store.get('hp.links', DEFAULTS) : DEFAULTS;
   const tiles = $('#tiles');
 
   // Stable per-site color so tiles stay recognizable at a glance.
@@ -796,7 +799,9 @@
       a.querySelector('.label').textContent = l.name;
       a.querySelector('.del').onclick = e => {
         e.preventDefault(); e.stopPropagation();
-        links.splice(i, 1); store.set('hp.links', links); drawLinks();
+        links.splice(i, 1);
+        store.set('hp.links', links); store.set('hp.linksCustom', true);
+        drawLinks();
       };
       tiles.append(a);
     });
@@ -820,7 +825,7 @@
     if (!url || !name) return;
     if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
     links.push({ name, url });
-    store.set('hp.links', links);
+    store.set('hp.links', links); store.set('hp.linksCustom', true);
     drawLinks();
   });
 
