@@ -531,9 +531,20 @@
   }
 
   /* the F1 section's headline tab runs the same cards, a size down */
-  .f1-news { grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 12px; padding: 6px 0 2px; }
-  .f1-news .chead { font-size: 12.5px; }
-  .f1-news .cbody { padding: 9px 11px 10px; }
+  /* compact variant of the card grid, shared by the F1 headline tab and Sports */
+  .grid-sm { grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 12px; padding: 6px 0 2px; }
+  .grid-sm .chead { font-size: 12.5px; }
+  .grid-sm .cbody { padding: 9px 11px 10px; }
+
+  /* ---------- sports ---------- */
+  .sp { margin-bottom: 38px; }
+  .sp-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 8px 14px 12px;
+  }
 
   /* ---------- dialog ---------- */
   dialog {
@@ -630,6 +641,16 @@
     <div class="f1-panel" id="f1Body"></div>
   </section>
 
+  <!-- Sports — feeds listed in tools/sports.conf, written to disk by ~/homepage/tools/fetch_sports.py. -->
+  <section class="sp" id="sports">
+    <div class="sec-head">
+      <h2>Sports</h2>
+      <span class="stamp" id="spStamp"></span>
+    </div>
+    <div class="sec-head"><div class="tabs" id="spTabs"></div></div>
+    <div class="sp-panel" id="spBody"></div>
+  </section>
+
   <!-- Hacker News — fetched from the Firebase API by ~/homepage/tools/fetch_hn.py. No network call happens here. -->
 </div>
 
@@ -651,6 +672,8 @@
 <script src="data/news.js"></script>
 <!-- F1 season, written to disk by ~/homepage/tools/fetch_f1.py. -->
 <script src="data/f1.js"></script>
+<!-- Sports headlines, written to disk by ~/homepage/tools/fetch_sports.py. -->
+<script src="data/sports.js"></script>
 <script>
 (() => {
   const $ = s => document.querySelector(s);
@@ -1011,7 +1034,7 @@
   function newsView() {
     const items = (f1.news || []);
     if (!items.length) return '<div class="empty">No F1 headlines right now.</div>';
-    return `<div class="news-grid f1-news">${items.map(i => newsCard(i, false)).join('')}</div>`;
+    return `<div class="news-grid grid-sm">${items.map(i => newsCard(i, false)).join('')}</div>`;
   }
 
   const F1_VIEWS = [
@@ -1048,6 +1071,35 @@
       f1Tabs.append(b);
     });
     drawF1(store.get('hp.f1Tab', 'Drivers'));
+  }
+
+  /* ---------- sports ---------- */
+  const sports = window.HP_SPORTS;
+  const spTabs = $('#spTabs'), spBody = $('#spBody');
+
+  function drawSports(name) {
+    const group = sports.groups.find(g => g.name === name) || sports.groups[0];
+    store.set('hp.spTab', group.name);
+    [...spTabs.children].forEach(b => b.setAttribute('aria-selected', b.textContent === group.name));
+    spBody.innerHTML = group.items.length
+      ? `<div class="news-grid grid-sm">${group.items.map(i => newsCard(i, false)).join('')}</div>`
+      : '<div class="empty">Nothing in this feed right now.</div>';
+  }
+
+  if (!sports || !sports.groups || !sports.groups.length) {
+    spBody.innerHTML = '<div class="empty">Sports aren\'t loaded. Run <b>python3 ~/homepage/tools/fetch_sports.py</b> in Terminal, then reload.</div>';
+  } else {
+    const spFetched = new Date(sports.updated).getTime();
+    $('#spStamp').textContent = 'Updated ' + ago(spFetched);
+    if (Date.now() - spFetched > 3 * 3600 * 1000) $('#spStamp').classList.add('stale');
+
+    sports.groups.forEach(g => {
+      const b = document.createElement('button');
+      b.textContent = g.name;
+      b.onclick = () => drawSports(g.name);
+      spTabs.append(b);
+    });
+    drawSports(store.get('hp.spTab', sports.groups[0].name));
   }
 
 })();

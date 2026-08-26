@@ -1,7 +1,7 @@
 # homepage
 
 A personal browser home page: shortcuts and search, plus two live sections —
-world/tech/sport headlines and Formula 1.
+world/tech/sport headlines, Formula 1 and a Sports section.
 
 ## How it works
 
@@ -12,6 +12,7 @@ JavaScript file that a fetcher already wrote to `data/`:
 |---|---|---|
 | `data/news.js` | RSS feeds listed in `tools/feeds.conf` | 30 min |
 | `data/f1.js` | [Jolpica-F1](https://api.jolpi.ca) (Ergast successor) + F1 RSS | 1 hour |
+| `data/sports.js` | Feeds listed in `tools/sports.conf` | 30 min |
 
 That design exists because the page was written to be opened as a `file://`
 document, where Safari blocks `fetch`/XHR but still loads sibling `<script>`
@@ -30,6 +31,7 @@ files.
 python3 tools/fetch_icons.py
 python3 tools/fetch_news.py
 python3 tools/fetch_f1.py
+python3 tools/fetch_sports.py
 open index.html
 ```
 

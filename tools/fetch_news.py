@@ -27,6 +27,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
@@ -111,14 +112,21 @@ def clean(text):
 
 
 def upgrade(url):
-    """Ask each source for the biggest version it will serve.
+    """Normalise an image URL to a sensible size for a card.
 
-    BBC encodes the width in the path, so it can simply be raised. The Guardian
-    signs every width separately (&s=<hash>), so its URLs must be used exactly as
-    published — the feed's own largest variant is the ceiling there.
+    Mostly this means asking for a bigger version: BBC encodes the width in the
+    path, so it can simply be raised. The Guardian signs every width separately
+    (&s=<hash>), so its URLs must be used exactly as published — the feed's own
+    largest variant is the ceiling there.
+
+    CBS needs the opposite treatment: it serves untouched 1920x1080 originals,
+    some of them 2.5 MB PNGs, for thumbnails that render a few hundred pixels
+    wide. Its CDN honours ?width=, which cuts that by roughly 80%.
     """
     if "ichef.bbci.co.uk" in url:
         return re.sub(r"/(?:standard|news|ace/standard)/\d+/", "/ace/standard/1024/", url)
+    if "cbsistatic.com" in url and "width=" not in url:
+        return url + ("&" if "?" in url else "?") + "width=1200"
     return url
 
 
@@ -249,15 +257,24 @@ def download(url, referer="", bucket=NEWS_BUCKET):
     headers = {"User-Agent": BROWSER_UA, "Accept": "image/*,*/*"}
     if referer:
         headers["Referer"] = referer
-    try:
-        req = urllib.request.Request(url, headers=headers)
-        with urllib.request.urlopen(req, timeout=IMG_TIMEOUT) as resp:
-            ctype = (resp.headers.get("Content-Type") or "").split(";")[0].strip().lower()
-            if not ctype.startswith("image/"):
-                return "", ""
-            data = resp.read(MAX_IMG_BYTES + 1)
-    except (urllib.error.URLError, urllib.error.HTTPError, OSError, ValueError):
-        return "", ""
+
+    # Hosts throttle when several workers hit them at once — Yahoo in particular
+    # drops a few requests per run. One retry turns a lost photo into a slow one.
+    data, ctype = None, ""
+    for attempt in range(2):
+        try:
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req, timeout=IMG_TIMEOUT) as resp:
+                ctype = (resp.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+                if not ctype.startswith("image/"):
+                    return "", ""
+                data = resp.read(MAX_IMG_BYTES + 1)
+            break
+        except (urllib.error.URLError, urllib.error.HTTPError, OSError, ValueError):
+            if attempt == 0:
+                time.sleep(1.5)
+                continue
+            return "", ""
     if not data or len(data) > MAX_IMG_BYTES:
         return "", ""
 
