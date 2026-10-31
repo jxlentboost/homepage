@@ -1,0 +1,1115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home</title>
+<style>
+  :root {
+    --bg: #f4f4f1;
+    --surface: #ffffff;
+    --surface-2: #ececeA;
+    --text: #17171a;
+    --muted: #74747e;
+    --faint: #a3a3ac;
+    --border: rgba(0,0,0,.09);
+    --border-strong: rgba(0,0,0,.16);
+    --accent: #bd5a33;
+    --shadow: 0 1px 2px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.05);
+    --f1: #e10600;
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f0f11;
+      --surface: #18181b;
+      --surface-2: #202024;
+      --text: #ececef;
+      --muted: #8b8b95;
+      --faint: #5d5d67;
+      --border: rgba(255,255,255,.09);
+      --border-strong: rgba(255,255,255,.18);
+      --accent: #e08558;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.28);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input, textarea { font: inherit; color: inherit; }
+  button { background: none; border: 0; padding: 0; cursor: pointer; }
+
+  .wrap {
+    max-width: 940px;
+    margin: 0 auto;
+    padding: 8vh 28px 64px;
+  }
+
+  /* ---------- header ---------- */
+  header { text-align: center; margin-bottom: 34px; }
+  .clock {
+    font-size: clamp(56px, 11vw, 92px);
+    font-weight: 250;
+    letter-spacing: -.03em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .clock .ampm {
+    font-size: .26em;
+    font-weight: 400;
+    letter-spacing: .06em;
+    color: var(--muted);
+    margin-left: .28em;
+    vertical-align: .35em;
+  }
+  .greeting {
+    margin-top: 12px;
+    font-size: 16px;
+    color: var(--muted);
+  }
+  .greeting button {
+    color: var(--muted);
+    border-bottom: 1px dashed transparent;
+  }
+  .greeting button:hover { color: var(--text); border-bottom-color: var(--border-strong); }
+
+  /* ---------- search ---------- */
+  .search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0 8px 0 18px;
+    height: 50px;
+    box-shadow: var(--shadow);
+    margin-bottom: 34px;
+    transition: border-color .15s;
+  }
+  .search:focus-within { border-color: var(--border-strong); }
+  .search svg { flex: none; color: var(--faint); }
+  .search input {
+    flex: 1;
+    background: none;
+    border: 0;
+    outline: none;
+    height: 100%;
+    font-size: 15.5px;
+  }
+  .search input::placeholder { color: var(--faint); }
+  .engine {
+    flex: none;
+    appearance: none;
+    background: var(--surface-2);
+    border: 0;
+    border-radius: 999px;
+    padding: 7px 12px;
+    font-size: 12.5px;
+    color: var(--muted);
+    cursor: pointer;
+    outline: none;
+  }
+
+  /* ---------- sections ---------- */
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin: 0 4px 12px;
+  }
+  h2 {
+    margin: 0;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  .ghost {
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .ghost:hover { color: var(--accent); }
+
+  /* shared empty-state line, used by the news and F1 panels */
+  .empty { color: var(--faint); font-size: 13.5px; padding: 10px 2px; }
+
+  /* ---------- links ---------- */
+  .tiles {
+    display: grid;
+    /* fixed four across, rather than auto-fill, so the row count is predictable */
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 38px;
+  }
+  @media (max-width: 700px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    height: 132px;
+    padding: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: var(--text);
+    box-shadow: var(--shadow);
+    transition: transform .13s ease, border-color .13s;
+  }
+  .tile:hover { transform: translateY(-2px); border-color: var(--border-strong); }
+  .mono.logo {
+    background: #fff;
+    border: 1px solid var(--border);
+    padding: 7px;
+  }
+  .mono.logo img { display: block; width: 100%; height: 100%; object-fit: contain; }
+  .mono {
+    width: 56px; height: 56px;
+    border-radius: 15px;
+    display: grid; place-items: center;
+    font-size: 23px; font-weight: 600;
+    color: #fff;
+    letter-spacing: -.02em;
+  }
+  .tile span.label {
+    font-size: 13.5px;
+    color: var(--muted);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tile .del {
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 19px;
+    display: none;
+  }
+  .tile .del:hover { color: #fff; background: #d2452f; }
+  body.editing .tile .del { display: block; }
+  .tile.add {
+    border-style: dashed;
+    box-shadow: none;
+    background: none;
+    color: var(--faint);
+    font-size: 26px;
+    cursor: pointer;
+  }
+  .tile.add:hover { color: var(--accent); }
+
+  /* ---------- news ---------- */
+  .news { margin-bottom: 38px; }
+  .tabs { display: flex; gap: 4px; }
+  .tabs button {
+    padding: 4px 11px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .tabs button:hover { color: var(--text); }
+  .tabs button[aria-selected="true"] {
+    background: var(--surface-2);
+    color: var(--text);
+    font-weight: 500;
+  }
+  .news-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px 26px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 12px 18px;
+  }
+  @media (max-width: 700px) { .news-list { grid-template-columns: 1fr; } }
+  .story {
+    display: block;
+    padding: 9px 0;
+    text-decoration: none;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+  }
+  .news-list .story:last-child,
+  .news-list .story:nth-last-child(2):nth-child(odd) { border-bottom: 0; }
+  .story:hover .headline { color: var(--accent); }
+  .headline {
+    font-size: 14px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .byline {
+    font-size: 11.5px;
+    color: var(--faint);
+    margin-top: 3px;
+  }
+  .byline .src { color: var(--muted); }
+  .stamp { font-size: 12px; color: var(--faint); }
+  .stamp.stale { color: #c9722f; }
+
+  /* ---------- formula 1 ---------- */
+  .f1 { margin-bottom: 38px; }
+  .f1 h2 .season {
+    margin-left: 9px;
+    font-weight: 500;
+    letter-spacing: .03em;
+    text-transform: none;
+    color: var(--muted);
+  }
+
+  /* The "next race" board stays dark in both themes — it should read like a pit board. */
+  .f1-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius);
+    background: linear-gradient(118deg, #131318 0%, #1c1c26 46%, #35121a 100%);
+    color: #f2f2f5;
+    box-shadow: var(--shadow);
+    padding: 20px 22px 16px;
+    margin-bottom: 14px;
+  }
+  .f1-hero::after {           /* speed lines */
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(115deg, rgba(255,255,255,.045) 0 1px, transparent 1px 10px);
+    pointer-events: none;
+  }
+  .f1-hero > * { position: relative; z-index: 1; }
+  .f1-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .f1-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 10.5px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.52);
+  }
+  .f1-eyebrow .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--f1);
+    box-shadow: 0 0 0 3px rgba(225,6,0,.2);
+  }
+  .f1-race {
+    margin-top: 9px;
+    font-size: clamp(20px, 3.3vw, 27px);
+    font-weight: 600;
+    letter-spacing: -.02em;
+    line-height: 1.15;
+  }
+  .f1-where { margin-top: 5px; font-size: 12.5px; color: rgba(255,255,255,.58); }
+  .f1-cd { display: flex; gap: 13px; }
+  .f1-cd div { text-align: center; min-width: 44px; }
+  .f1-cd b {
+    display: block;
+    font-size: 29px;
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .f1-cd span {
+    font-size: 9.5px;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.42);
+  }
+  .f1-sessions { display: flex; gap: 8px; margin-top: 16px; overflow-x: auto; padding-bottom: 2px; }
+  .f1-chip {
+    flex: none;
+    border: 1px solid rgba(255,255,255,.13);
+    background: rgba(255,255,255,.05);
+    border-radius: 9px;
+    padding: 6px 10px;
+    line-height: 1.3;
+  }
+  .f1-chip b {
+    display: block;
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.5);
+  }
+  .f1-chip span { font-size: 12.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .f1-chip.race   { border-color: rgba(225,6,0,.55);   background: rgba(225,6,0,.16); }
+  .f1-chip.sprint { border-color: rgba(255,193,7,.42); background: rgba(255,193,7,.12); }
+  .f1-chip.past   { opacity: .34; }
+
+  .f1-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 8px 14px 12px;
+  }
+  .f1-caption {
+    font-size: 12px;
+    color: var(--muted);
+    padding: 6px 8px 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+  }
+  .f1-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 24px; }
+  @media (max-width: 700px) { .f1-grid { grid-template-columns: 1fr; } }
+
+  /* One standings / results line. --team carries the livery colour. */
+  .f1-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px;
+    border-bottom: 1px solid var(--border);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .f1-row:hover { background: var(--surface-2); }
+  .f1-meter {         /* points bar, sits behind the text */
+    position: absolute;
+    left: 0; top: 3px; bottom: 3px;
+    border-radius: 8px;
+    background: var(--team);
+    opacity: .11;
+  }
+  .f1-row > *:not(.f1-meter) { position: relative; }
+  .f1-pos {
+    flex: none;
+    width: 20px;
+    text-align: right;
+    font-size: 12.5px;
+    color: var(--faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .f1-tag { flex: none; width: 4px; align-self: stretch; border-radius: 2px; background: var(--team); }
+  .f1-who { flex: 1; min-width: 0; }
+  .f1-name, .f1-sub { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .f1-name { font-size: 13.5px; }
+  .f1-name b { font-weight: 600; }
+  .f1-sub { font-size: 11px; color: var(--faint); margin-top: 1px; }
+  .f1-pts { flex: none; text-align: right; font-variant-numeric: tabular-nums; }
+  .f1-pts b { font-size: 14.5px; font-weight: 600; }
+  .f1-pts span { display: block; font-size: 10.5px; color: var(--faint); }
+  .f1-row.pod1 .f1-pos { color: #d8a129; font-weight: 700; }
+  .f1-row.pod2 .f1-pos { color: #9aa0a6; font-weight: 700; }
+  .f1-row.pod3 .f1-pos { color: #b3703c; font-weight: 700; }
+  .f1-sub .up   { font-style: normal; color: #2c9c5c; }
+  .f1-sub .down { font-style: normal; color: #cc5b45; }
+  .f1-name .fl {
+    font-style: normal;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    color: #a855f7;
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    padding: 0 3px;
+    vertical-align: 1px;
+  }
+
+  .f1-grid .story .byline { display: block; }
+  .f1-grid .story:last-child,
+  .f1-grid .story:nth-last-child(2):nth-child(odd) { border-bottom: 0; }
+
+  /* ---------- season calendar ---------- */
+  .f1-cal { display: grid; grid-template-columns: repeat(auto-fill, minmax(146px, 1fr)); gap: 8px; padding: 6px 0 2px; }
+  .f1-cal a {
+    display: block;
+    padding: 10px 11px;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color .13s, transform .13s ease;
+  }
+  .f1-cal a:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+  .f1-cal a.done { opacity: .6; }
+  .f1-cal a.next { border-color: var(--f1); box-shadow: inset 0 0 0 1px var(--f1); opacity: 1; }
+  .f1-cal .rnd {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9.5px;
+    letter-spacing: .11em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  .f1-cal .sp { color: #c98a00; font-weight: 700; }
+  .f1-cal .gp { display: block; font-size: 13px; line-height: 1.3; margin-top: 6px; }
+  .f1-cal .dt { display: block; font-size: 11.5px; color: var(--muted); margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .f1-cal .won { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--faint); margin-top: 5px; }
+  .f1-cal .won i { width: 6px; height: 6px; border-radius: 50%; background: var(--team); }
+
+  /* ---------- news cards ---------- */
+  .news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(196px, 1fr));
+    gap: 14px;
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    text-decoration: none;
+    color: var(--text);
+    transition: transform .13s ease, border-color .13s;
+  }
+  .card:hover { transform: translateY(-2px); border-color: var(--border-strong); }
+  .card .thumb {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: var(--surface-2);
+  }
+  /* Feeds that ship no picture (the Reuters proxy) get a source-tinted panel
+     instead of a hole in the grid. Same hue function as the shortcut tiles. */
+  .card .ph {
+    display: grid;
+    place-items: center;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.92);
+    text-align: center;
+    padding: 6px;
+  }
+  .card .cbody { display: flex; flex-direction: column; flex: 1; padding: 11px 13px 12px; }
+  .card .chead {
+    font-size: 13.5px;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card:hover .chead { color: var(--accent); }
+  .card .cmeta { margin-top: auto; padding-top: 9px; font-size: 11px; color: var(--faint); }
+  .card .cmeta .src { color: var(--muted); }
+
+  /* the lead story gets double width and a bigger headline */
+  .card.lead { grid-column: span 2; }
+  .card.lead .thumb { aspect-ratio: 2 / 1; }
+  .card.lead .chead { font-size: 17.5px; font-weight: 600; letter-spacing: -.01em; }
+  @media (max-width: 700px) {
+    .card.lead { grid-column: span 1; }
+    .card.lead .thumb { aspect-ratio: 16 / 9; }
+    .card.lead .chead { font-size: 15px; }
+  }
+
+  /* the F1 section's headline tab runs the same cards, a size down */
+  /* compact variant of the card grid, shared by the F1 headline tab and Sports */
+  .grid-sm { grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 12px; padding: 6px 0 2px; }
+  .grid-sm .chead { font-size: 12.5px; }
+  .grid-sm .cbody { padding: 9px 11px 10px; }
+
+  /* ---------- sports ---------- */
+  .sp { margin-bottom: 38px; }
+  .sp-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 8px 14px 12px;
+  }
+
+  /* ---------- dialog ---------- */
+  dialog {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    padding: 20px;
+    width: min(360px, 90vw);
+    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+  }
+  dialog::backdrop { background: rgba(0,0,0,.4); }
+  dialog h3 { margin: 0 0 14px; font-size: 15px; font-weight: 600; }
+  dialog input {
+    width: 100%;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 9px 11px;
+    outline: none;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+  dialog input:focus { border-color: var(--border-strong); }
+  .dlg-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
+  .dlg-actions button {
+    padding: 8px 14px;
+    border-radius: 9px;
+    font-size: 13.5px;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-plain { color: var(--muted); }
+  .btn-plain:hover { color: var(--text); }
+
+  /* Shown only if the browser blocks localStorage (Safari can, on file:// pages). */
+  .warn {
+    display: none;
+    margin: 0 0 26px;
+    padding: 12px 16px;
+    border: 1px solid var(--border-strong);
+    border-left: 3px solid #d2452f;
+    border-radius: 10px;
+    background: var(--surface);
+    font-size: 13.5px;
+    color: var(--muted);
+  }
+  .warn b { color: var(--text); font-weight: 600; }
+  body.nostore .warn { display: block; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="warn"><b>Saving is turned off in this browser.</b> Your shortcut edits and name won't survive a reload. In Safari: enable the Develop menu (Settings → Advanced → "Show features for web developers"), then Develop → Developer Settings → tick "Disable local file restrictions".</div>
+
+  <header>
+    <div class="clock" id="clock">--:--</div>
+    <div class="greeting"><span id="greet"></span><button id="nameBtn" title="Click to set your name"></button> · <span id="date"></span></div>
+  </header>
+
+  <form class="search" id="searchForm">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+    <input id="q" placeholder="Search the web…  (press /)" autocomplete="off" spellcheck="false">
+    <select class="engine" id="engine">
+      <option value="https://www.google.com/search?q=">Google</option>
+      <option value="https://duckduckgo.com/?q=">DuckDuckGo</option>
+      <option value="https://www.perplexity.ai/search?q=">Perplexity</option>
+      <option value="https://claude.ai/new?q=">Claude</option>
+    </select>
+  </form>
+
+  <div class="sec-head">
+    <h2>Shortcuts</h2>
+    <button class="ghost" id="editBtn">Edit</button>
+  </div>
+  <div class="tiles" id="tiles"></div>
+
+  <section class="news">
+    <div class="sec-head">
+      <div class="tabs" id="newsTabs"></div>
+      <span class="stamp" id="newsStamp"></span>
+    </div>
+    <div class="news-grid" id="newsList"></div>
+  </section>
+
+  <!-- Formula 1 — season data written to disk by ~/homepage/tools/fetch_f1.py. No network call happens here. -->
+  <section class="f1" id="f1">
+    <div class="sec-head">
+      <h2>Formula 1<span class="season" id="f1Season"></span></h2>
+      <span class="stamp" id="f1Stamp"></span>
+    </div>
+    <div class="f1-hero" id="f1Hero"></div>
+    <div class="sec-head"><div class="tabs" id="f1Tabs"></div></div>
+    <div class="f1-panel" id="f1Body"></div>
+  </section>
+
+  <!-- Sports — feeds listed in tools/sports.conf, written to disk by ~/homepage/tools/fetch_sports.py. -->
+  <section class="sp" id="sports">
+    <div class="sec-head">
+      <h2>Sports</h2>
+      <span class="stamp" id="spStamp"></span>
+    </div>
+    <div class="sec-head"><div class="tabs" id="spTabs"></div></div>
+    <div class="sp-panel" id="spBody"></div>
+  </section>
+
+  <!-- Hacker News — fetched from the Firebase API by ~/homepage/tools/fetch_hn.py. No network call happens here. -->
+</div>
+
+<dialog id="linkDlg">
+  <form method="dialog">
+    <h3>Add shortcut</h3>
+    <input id="lName" placeholder="Name (e.g. Gmail)" autocomplete="off">
+    <input id="lUrl" placeholder="URL (e.g. mail.google.com)" autocomplete="off">
+    <div class="dlg-actions">
+      <button class="btn-plain" value="cancel">Cancel</button>
+      <button class="btn-primary" id="lSave" value="save">Add</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Headlines, written to disk by ~/homepage/tools/fetch_news.py. No network call happens here. -->
+<!-- Shortcut logos, cached to disk by ~/homepage/tools/fetch_icons.py. -->
+<script src="data/icons.js"></script>
+<script src="data/news.js"></script>
+<!-- F1 season, written to disk by ~/homepage/tools/fetch_f1.py. -->
+<script src="data/f1.js"></script>
+<!-- Sports headlines, written to disk by ~/homepage/tools/fetch_sports.py. -->
+<script src="data/sports.js"></script>
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const store = {
+    get(k, fallback) {
+      try { const v = localStorage.getItem(k); return v === null ? fallback : JSON.parse(v); }
+      catch { return fallback; }
+    },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+  };
+
+  // Safari can refuse localStorage entirely on file:// pages — fail loudly, not silently.
+  try {
+    localStorage.setItem('hp.probe', '1');
+    localStorage.removeItem('hp.probe');
+  } catch {
+    document.body.classList.add('nostore');
+  }
+
+  /* ---------- clock, date, greeting ---------- */
+  function tick() {
+    const now = new Date();
+    let h = now.getHours();
+    const ampm = h < 12 ? 'AM' : 'PM';
+    h = h % 12 || 12;
+    const m = String(now.getMinutes()).padStart(2, '0');
+    $('#clock').innerHTML = `${h}:${m}<span class="ampm">${ampm}</span>`;
+    $('#date').textContent = now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+
+    const hr = now.getHours();
+    $('#greet').textContent =
+      hr < 5  ? 'Still up' :
+      hr < 12 ? 'Good morning' :
+      hr < 18 ? 'Good afternoon' :
+      hr < 22 ? 'Good evening' : 'Good night';
+  }
+  setInterval(tick, 1000);
+  tick();
+
+  const nameBtn = $('#nameBtn');
+  function drawName() {
+    const n = store.get('hp.name', 'Jay');
+    nameBtn.textContent = n ? `, ${n}` : ' — add your name';
+  }
+  nameBtn.onclick = () => {
+    const n = prompt('What should this page call you?', store.get('hp.name', 'Jay'));
+    if (n !== null) { store.set('hp.name', n.trim()); drawName(); }
+  };
+  drawName();
+
+  /* ---------- search ---------- */
+  const engine = $('#engine');
+  engine.value = store.get('hp.engine', engine.options[0].value);
+  engine.onchange = () => store.set('hp.engine', engine.value);
+
+  $('#searchForm').onsubmit = e => {
+    e.preventDefault();
+    const q = $('#q').value.trim();
+    if (!q) return;
+    // Typed a bare domain or full URL? Go straight there.
+    if (/^https?:\/\//i.test(q)) location.href = q;
+    else if (/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(q)) location.href = 'https://' + q;
+    else location.href = engine.value + encodeURIComponent(q);
+  };
+
+  document.addEventListener('keydown', e => {
+    const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+    if (e.key === '/' && !typing) { e.preventDefault(); $('#q').focus(); }
+    if (e.key === 'Escape' && document.activeElement === $('#q')) $('#q').blur();
+  });
+
+  /* ---------- shortcuts ---------- */
+  const ICONS = (window.HP_ICONS && window.HP_ICONS.icons) || {};
+  // Plain parse rather than new URL(): no exceptions to trap, and it keeps this
+  // testable outside a browser, where URL is not defined.
+  const hostOf = u => {
+    const m = /^[a-z][a-z0-9+.-]*:\/\/(?:[^@/]*@)?([^/:?#]+)/i.exec(String(u || ''));
+    return m ? m[1].replace(/^www\./i, '').toLowerCase() : '';
+  };
+
+  const DEFAULTS = (window.HP_ICONS && window.HP_ICONS.defaults) || [
+    { name: 'Gmail',    url: 'https://mail.google.com' },
+    { name: 'Calendar', url: 'https://calendar.google.com' },
+    { name: 'Drive',    url: 'https://drive.google.com' },
+    { name: 'Claude',   url: 'https://claude.ai' },
+    { name: 'GitHub',   url: 'https://github.com' },
+    { name: 'YouTube',  url: 'https://youtube.com' },
+    { name: 'Maps',     url: 'https://maps.google.com' },
+  ];
+  // shortcuts.conf drives the tiles until you add or remove one in the browser.
+  // Without this flag a saved copy of the old defaults would shadow the config
+  // forever, and edits to shortcuts.conf would silently never show up.
+  let links = store.get('hp.linksCustom', false) ? store.get('hp.links', DEFAULTS) : DEFAULTS;
+  const tiles = $('#tiles');
+
+  // Stable per-site color so tiles stay recognizable at a glance.
+  const hue = s => { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) % 360; return h; };
+  const initials = n => n.trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+
+  function drawLinks() {
+    tiles.innerHTML = '';
+    links.forEach((l, i) => {
+      const a = document.createElement('a');
+      a.className = 'tile';
+      a.href = l.url;
+      const h = hue(l.name || l.url);
+      const icon = ICONS[hostOf(l.url)];
+      const badge = icon
+        ? `<div class="mono logo"><img src="${icon}" alt=""></div>`
+        : `<div class="mono" style="background:hsl(${h} 52% 45%)">${initials(l.name || '?')}</div>`;
+      a.innerHTML = `${badge}
+                     <span class="label"></span>
+                     <button class="del" title="Remove">×</button>`;
+      // A shortcut added in the browser has no cached logo, and a stale manifest
+      // can outlive its file — either way, fall back to the coloured initial.
+      const img = a.querySelector('.mono img');
+      if (img) img.onerror = () => {
+        const box = img.parentElement;
+        box.classList.remove('logo');
+        box.style.background = `hsl(${h} 52% 45%)`;
+        box.textContent = initials(l.name || '?');
+      };
+      a.querySelector('.label').textContent = l.name;
+      a.querySelector('.del').onclick = e => {
+        e.preventDefault(); e.stopPropagation();
+        links.splice(i, 1);
+        store.set('hp.links', links); store.set('hp.linksCustom', true);
+        drawLinks();
+      };
+      tiles.append(a);
+    });
+    const add = document.createElement('button');
+    add.className = 'tile add';
+    add.textContent = '+';
+    add.onclick = () => { $('#lName').value = ''; $('#lUrl').value = ''; $('#linkDlg').showModal(); $('#lName').focus(); };
+    tiles.append(add);
+  }
+  drawLinks();
+
+  $('#editBtn').onclick = () => {
+    document.body.classList.toggle('editing');
+    $('#editBtn').textContent = document.body.classList.contains('editing') ? 'Done' : 'Edit';
+  };
+
+  $('#linkDlg').addEventListener('close', () => {
+    if ($('#linkDlg').returnValue !== 'save') return;
+    let url = $('#lUrl').value.trim();
+    const name = $('#lName').value.trim();
+    if (!url || !name) return;
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    links.push({ name, url });
+    store.set('hp.links', links); store.set('hp.linksCustom', true);
+    drawLinks();
+  });
+
+  /* ---------- news ---------- */
+  const esc = s => String(s == null ? '' : s)
+    .replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  const news = window.HP_NEWS;
+  const newsList = $('#newsList'), newsTabs = $('#newsTabs'), stamp = $('#newsStamp');
+
+  function ago(ms) {
+    const mins = Math.round((Date.now() - ms) / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return mins + 'm ago';
+    const hrs = Math.round(mins / 60);
+    if (hrs < 24) return hrs + 'h ago';
+    return Math.round(hrs / 24) + 'd ago';
+  }
+
+  function newsCard(item, lead) {
+    const h = hue(item.source || '?');
+    const art = item.img
+      ? `<img class="thumb" src="${esc(item.img)}" alt="" loading="lazy">`
+      : `<span class="thumb ph" style="background:linear-gradient(140deg, hsl(${h} 46% 42%), hsl(${(h + 40) % 360} 46% 26%))">${esc(item.source)}</span>`;
+    return `<a class="card${lead ? ' lead' : ''}" href="${esc(item.url)}">
+      ${art}
+      <span class="cbody">
+        <span class="chead">${esc(item.title)}</span>
+        <span class="cmeta"><span class="src">${esc(item.source)}</span>${item.ts ? ' · ' + esc(ago(item.ts * 1000)) : ''}</span>
+      </span>
+    </a>`;
+  }
+
+  function drawNews(name) {
+    const group = news.groups.find(g => g.name === name) || news.groups[0];
+    store.set('hp.newsTab', group.name);
+
+    [...newsTabs.children].forEach(b => b.setAttribute('aria-selected', b.textContent === group.name));
+
+    if (!group.items.length) {
+      newsList.innerHTML = '<div class="empty">No headlines in this feed yet.</div>';
+      return;
+    }
+    // The first story that actually has a picture leads; promoting one without
+    // an image just makes a large empty box.
+    const leadIdx = group.items.findIndex(i => i.img);
+    newsList.innerHTML = group.items.map((item, n) => newsCard(item, n === leadIdx)).join('');
+  }
+
+  if (!news || !news.groups || !news.groups.length) {
+    newsList.innerHTML = '<div class="empty">Headlines aren\'t loaded. Run <b>python3 ~/homepage/tools/fetch_news.py</b> in Terminal, then reload.</div>';
+    stamp.textContent = '';
+  } else {
+    news.groups.forEach(g => {
+      const b = document.createElement('button');
+      b.textContent = g.name;
+      b.onclick = () => drawNews(g.name);
+      newsTabs.append(b);
+    });
+    const fetched = new Date(news.updated).getTime();
+    stamp.textContent = 'Updated ' + ago(fetched);
+    // Older than three hours means the background refresh probably isn't running.
+    if (Date.now() - fetched > 3 * 3600 * 1000) stamp.classList.add('stale');
+    drawNews(store.get('hp.newsTab', news.groups[0].name));
+  }
+
+  /* ---------- formula 1 ---------- */
+  const f1 = window.HP_F1;
+  const f1Hero = $('#f1Hero'), f1Tabs = $('#f1Tabs'), f1Body = $('#f1Body');
+
+  // Approximate 2026 livery colours, keyed by the API's constructorId.
+  // Purely cosmetic — edit freely, nothing else reads them.
+  const TEAM = {
+    mercedes: '#00d7b6', ferrari: '#e8002d', mclaren: '#ff8000',
+    red_bull: '#3671c6', rb: '#6692ff', alpine: '#0093cc',
+    haas: '#b6babd', audi: '#00594f', williams: '#1868db',
+    aston_martin: '#229971', cadillac: '#c8a951', sauber: '#52e252',
+  };
+  const tc = id => TEAM[id] || '#8b8b95';
+  const pts = n => (Number.isInteger(n) ? n : n.toFixed(1));
+
+  function atTime(iso) {
+    const d = new Date(iso);
+    return isNaN(d) ? '' : d.toLocaleString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit' });
+  }
+  function onDay(iso) {
+    if (!iso) return '';
+    // A bare YYYY-MM-DD parses as UTC midnight, which slips to the previous day
+    // in western timezones — build those as a local date instead.
+    const bare = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+    const d = bare ? new Date(+bare[1], +bare[2] - 1, +bare[3]) : new Date(iso);
+    return isNaN(d) ? '' : d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+
+  /* next race board */
+  let nextStart = null;
+
+  function drawCountdown() {
+    const el = document.getElementById('f1Cd');
+    if (!el || !nextStart) return;
+    const ms = nextStart - Date.now();
+    const cell = (v, label) => `<div><b>${String(v).padStart(2, '0')}</b><span>${label}</span></div>`;
+    if (ms <= -4 * 3600 * 1000) { el.innerHTML = '<div><b>&mdash;</b><span>finished</span></div>'; return; }
+    if (ms <= 0) { el.innerHTML = '<div><b>LIVE</b><span>lights out</span></div>'; return; }
+    const d = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24,
+          m = Math.floor(ms / 6e4) % 60, s = Math.floor(ms / 1e3) % 60;
+    // Inside the last day, seconds are more interesting than a "0 days" cell.
+    el.innerHTML = d > 0 ? cell(d, 'days') + cell(h, 'hrs') + cell(m, 'min')
+                         : cell(h, 'hrs') + cell(m, 'min') + cell(s, 'sec');
+  }
+
+  function drawHero() {
+    const race = f1.schedule.find(r => r.round === f1.nextRound);
+    if (!race) {
+      f1Hero.innerHTML = `<div class="f1-top"><div>
+        <div class="f1-eyebrow"><span class="dot"></span>Season complete</div>
+        <div class="f1-race">${esc(f1.season)} season is done</div>
+        <div class="f1-where">${f1.last ? esc(f1.last.flag + ' ' + f1.last.name) + ' closed the year' : ''}</div>
+      </div></div>`;
+      return;
+    }
+    nextStart = new Date(race.start).getTime();
+    const chips = race.sessions.map(s => {
+      const cls = ['f1-chip'];
+      if (s.label === 'Race') cls.push('race');
+      else if (s.label.startsWith('Sprint')) cls.push('sprint');
+      if (new Date(s.start).getTime() < Date.now()) cls.push('past');
+      return `<div class="${cls.join(' ')}"><b>${esc(s.label)}</b><span>${esc(atTime(s.start))}</span></div>`;
+    }).join('');
+    f1Hero.innerHTML = `
+      <div class="f1-top">
+        <div>
+          <div class="f1-eyebrow"><span class="dot"></span>Next up · Round ${race.round} of ${f1.totalRounds}</div>
+          <div class="f1-race">${esc(race.flag)} ${esc(race.name)}</div>
+          <div class="f1-where">${esc(race.circuit)} · ${esc(race.locality)}, ${esc(race.country)}</div>
+        </div>
+        <div class="f1-cd" id="f1Cd"></div>
+      </div>
+      <div class="f1-sessions">${chips}</div>`;
+    drawCountdown();
+  }
+
+  /* views */
+  function rows(items, name, sub) {
+    const max = Math.max(...items.map(i => i.points), 1);
+    return items.map(i => `
+      <a class="f1-row" style="--team:${tc(i.teamId)}" href="${esc(i.url)}">
+        <span class="f1-meter" style="width:${Math.max(2, (i.points / max) * 100)}%"></span>
+        <span class="f1-pos">${i.pos}</span>
+        <span class="f1-tag"></span>
+        <span class="f1-who"><span class="f1-name">${name(i)}</span><span class="f1-sub">${sub(i)}</span></span>
+        <span class="f1-pts"><b>${pts(i.points)}</b><span>${i.wins ? i.wins + (i.wins > 1 ? ' wins' : ' win') : 'pts'}</span></span>
+      </a>`).join('');
+  }
+
+  function driversView() {
+    if (!f1.drivers.length) return '<div class="empty">No driver standings yet.</div>';
+    return `<div class="f1-grid">${rows(
+      f1.drivers,
+      d => `${esc(d.flag)} <b>${esc(d.family)}</b>`,
+      d => `${esc(d.given)} · ${esc(d.team)}`
+    )}</div>`;
+  }
+
+  function teamsView() {
+    if (!f1.constructors.length) return '<div class="empty">No constructor standings yet.</div>';
+    const lineup = id => f1.drivers.filter(d => d.teamId === id).map(d => d.code).join(' · ');
+    return `<div class="f1-grid">${rows(
+      f1.constructors.map(c => ({ ...c, teamId: c.teamId })),
+      c => `${esc(c.flag)} <b>${esc(c.name)}</b>`,
+      c => esc(lineup(c.teamId) || c.name)
+    )}</div>`;
+  }
+
+  function resultsView() {
+    const r = f1.last;
+    if (!r || !r.results.length) return '<div class="empty">No race results yet this season.</div>';
+    const list = r.results.map(x => {
+      const pod = ['1', '2', '3'].includes(x.pos) ? ' pod' + x.pos : '';
+      const detail = x.time || (x.status === 'Finished' ? '' : x.status);
+      const moved = x.gained > 0 ? ` <i class="up">▲${x.gained}</i>`
+                  : x.gained < 0 ? ` <i class="down">▼${-x.gained}</i>` : '';
+      return `
+        <div class="f1-row${pod}" style="--team:${tc(x.teamId)}">
+          <span class="f1-pos">${esc(x.pos)}</span>
+          <span class="f1-tag"></span>
+          <span class="f1-who">
+            <span class="f1-name">${esc(x.flag)} <b>${esc(x.name)}</b>${x.fastest ? ' <i class="fl">FL</i>' : ''}</span>
+            <span class="f1-sub">${esc(x.team)}${detail ? ' · ' + esc(detail) : ''}${moved}</span>
+          </span>
+          <span class="f1-pts"><b>${x.points ? pts(x.points) : '–'}</b><span>${x.grid ? 'P' + esc(x.grid) + ' grid' : ''}</span></span>
+        </div>`;
+    }).join('');
+    return `<div class="f1-caption">${esc(r.flag)} ${esc(r.name)} · Round ${r.round} · ${esc(onDay(r.start || r.date))} · ${esc(r.circuit)}</div>
+            <div class="f1-grid">${list}</div>`;
+  }
+
+  function scheduleView() {
+    if (!f1.schedule.length) return '<div class="empty">No calendar available.</div>';
+    return `<div class="f1-cal">${f1.schedule.map(r => {
+      const cls = [r.winner ? 'done' : '', r.round === f1.nextRound ? 'next' : ''].filter(Boolean).join(' ');
+      return `<a class="${cls}" href="${esc(r.url)}">
+        <span class="rnd"><span>Round ${r.round}</span>${r.sprint ? '<span class="sp">SPR</span>' : ''}</span>
+        <span class="gp">${esc(r.flag)} ${esc(r.name.replace(/ Grand Prix/, ''))}</span>
+        <span class="dt">${esc(onDay(r.start || r.date))}</span>
+        ${r.winner ? `<span class="won" style="--team:${tc(r.winner.teamId)}"><i></i>${esc(r.winner.code)}</span>` : ''}
+      </a>`;
+    }).join('')}</div>`;
+  }
+
+  function newsView() {
+    const items = (f1.news || []);
+    if (!items.length) return '<div class="empty">No F1 headlines right now.</div>';
+    return `<div class="news-grid grid-sm">${items.map(i => newsCard(i, false)).join('')}</div>`;
+  }
+
+  const F1_VIEWS = [
+    { name: 'Drivers',   render: driversView },
+    { name: 'Teams',     render: teamsView },
+    { name: 'Last race', render: resultsView },
+    { name: 'Schedule',  render: scheduleView },
+    { name: 'News',      render: newsView },
+  ];
+
+  function drawF1(name) {
+    const view = F1_VIEWS.find(v => v.name === name) || F1_VIEWS[0];
+    store.set('hp.f1Tab', view.name);
+    [...f1Tabs.children].forEach(b => b.setAttribute('aria-selected', b.textContent === view.name));
+    f1Body.innerHTML = view.render();
+  }
+
+  if (!f1 || !f1.schedule) {
+    f1Hero.style.display = 'none';
+    f1Body.innerHTML = '<div class="empty">F1 data isn\'t loaded. Run <b>python3 ~/homepage/tools/fetch_f1.py</b> in Terminal, then reload.</div>';
+  } else {
+    $('#f1Season').textContent = ` ${f1.season} · round ${f1.round} of ${f1.totalRounds}`;
+    const f1Fetched = new Date(f1.updated).getTime();
+    $('#f1Stamp').textContent = 'Updated ' + ago(f1Fetched);
+    if (Date.now() - f1Fetched > 6 * 3600 * 1000) $('#f1Stamp').classList.add('stale');
+
+    drawHero();
+    setInterval(drawCountdown, 1000);
+
+    F1_VIEWS.forEach(v => {
+      const b = document.createElement('button');
+      b.textContent = v.name;
+      b.onclick = () => drawF1(v.name);
+      f1Tabs.append(b);
+    });
+    drawF1(store.get('hp.f1Tab', 'Drivers'));
+  }
+
+  /* ---------- sports ---------- */
+  const sports = window.HP_SPORTS;
+  const spTabs = $('#spTabs'), spBody = $('#spBody');
+
+  function drawSports(name) {
+    const group = sports.groups.find(g => g.name === name) || sports.groups[0];
+    store.set('hp.spTab', group.name);
+    [...spTabs.children].forEach(b => b.setAttribute('aria-selected', b.textContent === group.name));
+    spBody.innerHTML = group.items.length
+      ? `<div class="news-grid grid-sm">${group.items.map(i => newsCard(i, false)).join('')}</div>`
+      : '<div class="empty">Nothing in this feed right now.</div>';
+  }
+
+  if (!sports || !sports.groups || !sports.groups.length) {
+    spBody.innerHTML = '<div class="empty">Sports aren\'t loaded. Run <b>python3 ~/homepage/tools/fetch_sports.py</b> in Terminal, then reload.</div>';
+  } else {
+    const spFetched = new Date(sports.updated).getTime();
+    $('#spStamp').textContent = 'Updated ' + ago(spFetched);
+    if (Date.now() - spFetched > 3 * 3600 * 1000) $('#spStamp').classList.add('stale');
+
+    sports.groups.forEach(g => {
+      const b = document.createElement('button');
+      b.textContent = g.name;
+      b.onclick = () => drawSports(g.name);
+      spTabs.append(b);
+    });
+    drawSports(store.get('hp.spTab', sports.groups[0].name));
+  }
+
+})();
+</script>
+</body>
+</html>
